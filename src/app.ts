@@ -1,3 +1,4 @@
+import './style.css'
 
 const csvForm = document.getElementById('csvForm') as HTMLFormElement;
 const csvFile = document.getElementById('csvFile') as HTMLInputElement;
@@ -20,6 +21,19 @@ function formatDateToDDMMYY(date: Date): string {
     ].join('');
 }
 
+function convertDate(input: string): string {
+    // Parse the input date string
+    const date = new Date(input);
+  
+    // Extract the day, month, and year as strings
+    const day = date.getDate().toString().padStart(2, '0');
+    const month = (date.getMonth() + 1).toString().padStart(2, '0'); // Month is 0-indexed
+    const year = date.getFullYear().toString();
+  
+    // Concatenate them in the desired format
+    return day + month + year;
+  }
+
 // Create an event listener for the form object
 csvForm.addEventListener("submit", (e: Event) =>  {
     e.preventDefault(); // prevent HTML form submission
@@ -36,21 +50,20 @@ csvForm.addEventListener("submit", (e: Event) =>  {
 
         // Ensure the type of information from the file is a string
         if(typeof text === 'string' || text instanceof String) {
+            const values = text.split(/[\r\n]+/); // group the information by the CSV breakpoint \n is a new line
 
-            const values = text.split(/[\n]+/); // group the information by the CSV breakpoint \n is a new line
-            let WkNum : string;
-
-            let i =1;
+            let i =0;
 
             values.forEach(val => {
                 // further split by each section by the CSV
-                if (i!=1 && i!=3 && i!=4) {
+                if (i!=0 && i!=2) {
                     final_vals.push(val.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/));
-                } else if (i==4){
-                    WkNum=val.substring(1,8);
-                }
+                } 
                 i++;
             });
+
+            console.log(final_vals)
+            console.log(values)
 
             const headerOutput: string[] = [];
             //const rowsOutput: string[] = [];
@@ -86,13 +99,12 @@ csvForm.addEventListener("submit", (e: Event) =>  {
                         rowtemp.push("99"); //  BACS Code
                         rowtemp.push("202405"); // Debit Sort Code
                         rowtemp.push("173479"); // Debit A/C No.
-                        rowtemp.push(WkNum); //Free Format
+                        rowtemp.push("WK"+val[8]); //Free Format - Week number
                         rowtemp.push(val[4]); //Amount
                         rowtemp.push("BUXTON LIME LTD"); //Orig Name
                         rowtemp.push("Buxton Lime LtdSal"); // Pay Ref
                         rowtemp.push(val[0] + " " +val[1]); //Dest A/C Name
-
-                        rowtemp.push(formattedDate); // Proc Date
+                        rowtemp.push(convertDate(val[7])); // Proc Date
                         if (i>0){
                            BACOutput.push(rowtemp); 
                         }
@@ -127,8 +139,6 @@ csvForm.addEventListener("submit", (e: Event) =>  {
             hiddenElement.target = '_blank';
             hiddenElement.download = "BuxtonLime"+ formattedDate + '.csv';
             hiddenElement.click();
-
-
 
             // create form 
             generate_table(<[string[]]>BACOutput)
