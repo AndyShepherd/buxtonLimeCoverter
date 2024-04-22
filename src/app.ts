@@ -3,6 +3,7 @@ import './style.css'
 const csvForm = document.getElementById('csvForm') as HTMLFormElement;
 const csvFile = document.getElementById('csvFile') as HTMLInputElement;
 const displayArea = document.getElementById('displayArea') as HTMLDivElement;
+const table = document.getElementById('result')as HTMLTableElement;
 //const csvForm = document.querySelector<HTMLFormElement>('#counter')!;
 
 // is the array to hold the final values from the CSV file
@@ -38,6 +39,12 @@ function convertDate(input: string): string {
 csvForm.addEventListener("submit", (e: Event) =>  {
     e.preventDefault(); // prevent HTML form submission
 
+    if (table) {
+      // Remove the table element from the DOM
+        table.remove();
+    }
+
+
     let csvReader = new FileReader(); // generate a filereader from the JS API
 
     const input = csvFile.files[0]; // grab the first (only) file from the input 
@@ -53,17 +60,27 @@ csvForm.addEventListener("submit", (e: Event) =>  {
             const values = text.split(/[\r\n]+/); // group the information by the CSV breakpoint \n is a new line
 
             let i =0;
+            let freetextval: string;
 
             values.forEach(val => {
                 // further split by each section by the CSV
                 if (i!=0 && i!=2) {
                     final_vals.push(val.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/));
-                } 
+                } else if (i==2){
+                    
+                    if (val.includes("Month")) //Check the report used and assign the correct FreeText feild value.
+                        {
+                            freetextval = "M";
+                        } else 
+                        {
+                            freetextval = "WK";
+                        }
+                }
                 i++;
             });
 
-            console.log(final_vals)
-            console.log(values)
+            //console.log(final_vals)
+            //console.log(values)
 
             const headerOutput: string[] = [];
             //const rowsOutput: string[] = [];
@@ -99,7 +116,7 @@ csvForm.addEventListener("submit", (e: Event) =>  {
                         rowtemp.push("99"); //  BACS Code
                         rowtemp.push("202405"); // Debit Sort Code
                         rowtemp.push("173479"); // Debit A/C No.
-                        rowtemp.push("WK"+val[8]); //Free Format - Week number
+                        rowtemp.push(freetextval + val[8]); //Free Format - Week number
                         rowtemp.push(val[4]); //Amount
                         rowtemp.push("BUXTON LIME LTD"); //Orig Name
                         rowtemp.push("Buxton Lime LtdSal"); // Pay Ref
@@ -166,7 +183,7 @@ csvForm.addEventListener("submit", (e: Event) =>  {
 
     // this runs the above action   
     csvReader.readAsText(input);
-
+    csvForm.hidden= true;
     
 });
 
@@ -174,7 +191,7 @@ csvForm.addEventListener("submit", (e: Event) =>  {
 // used as async to ensure a promise can be used to format the data
 const generate_table = async (arrayTable: [string[]]) : Promise<string> => {
     return `
-        <table class="table table-striped">
+        <table id="output" class="table table-striped">
             <thead>
                 ${arrayTable[0].map(val => {
                     return `

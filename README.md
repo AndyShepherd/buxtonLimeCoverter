@@ -1,5 +1,6 @@
 Simple CSV conversion tool
 
+npm run dev
 
 Build Commands:
 
@@ -16,4 +17,4 @@ sudo docker tag buxtonlimecoverter:latest andyuks/buxtonlimecoverter:latest
 sudo docker push andyuks/buxtonlimecoverter:latest
 
 
-sudo docker run -it --rm -d -p 8088:8080 --name buxtonlimecoverter andyuks/buxtonlimecoverter
+sudo docker run -it -d -p 8088:8080 --name buxtonlimecoverter andyuks/buxtonlimecoverter
