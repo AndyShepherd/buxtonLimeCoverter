@@ -6,6 +6,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Buxton Lime BAC Conversion</title>
     <link rel="stylesheet" href="./src/bootstrap.min.css">
+    <script>
+        document.addEventListener('DOMContentLoaded', (event) => {
+            var cellValue = document.getElementById('amount').innerText;
+            var numberValue = parseInt(cellValue, 10); // Convert to number, removing leading zeros
+            var formattedValue = numberValue.toLocaleString('en-GB', {
+                style: 'currency',
+                currency: 'GBP',
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+        });
+        document.getElementById('amount').innerText = formattedValue;
+});
+    </script>
 </head>
 <body>
     <div id="app"></div>

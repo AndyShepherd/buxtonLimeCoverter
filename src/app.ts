@@ -35,6 +35,29 @@ function convertDate(input: string): string {
     return day + month + year;
   }
 
+  function padStringEnd(input: string, maxLength: number): string {
+    // Pad the string with spaces on the right side if it's shorter than the maxLength
+    if (input.length>maxLength ) {
+        return input.substring(0, maxLength)
+    } else
+    {
+        return input.padEnd(maxLength, ' ');
+    }
+  }
+  function padNumberwithZero(input: string, maxLength: number): string {
+    // Pad the string with spaces on the right side if it's shorter than the maxLength
+    if (input.length>maxLength ) {
+        return input.substring(0, maxLength)
+    } else
+    {
+        return input.padStart(maxLength, '0');
+    }
+  }
+
+  function removeSpecialCharacters(inputString: string): string {
+    return inputString.replace(/[,."]/g, "");
+  }
+
 // Create an event listener for the form object
 csvForm.addEventListener("submit", (e: Event) =>  {
     e.preventDefault(); // prevent HTML form submission
@@ -79,12 +102,8 @@ csvForm.addEventListener("submit", (e: Event) =>  {
                 i++;
             });
 
-            //console.log(final_vals)
-            //console.log(values)
-
             const headerOutput: string[] = [];
-            //const rowsOutput: string[] = [];
-            // setup headers
+            // setup headers For Grid
             headerOutput.push("Dest Sort Code");
             headerOutput.push("Dest A/C No.");
             headerOutput.push("Dest A/C Type");
@@ -109,19 +128,19 @@ csvForm.addEventListener("submit", (e: Event) =>  {
 
                         const tempstring: string = val[2];
 
-                        rowtemp.push(tempstring.replace(/-/g, ""));  //Dest Sort Code and remove the - from sort code
+                        rowtemp.push(padStringEnd(tempstring.replace(/-/g, ""),6));  //Dest Sort Code and remove the - from sort code
 
-                        rowtemp.push(val[3]);   //Dest A/C No.
-                        rowtemp.push("0");  //Dest A/C Type
-                        rowtemp.push("99"); //  BACS Code
-                        rowtemp.push("202405"); // Debit Sort Code
-                        rowtemp.push("173479"); // Debit A/C No.
-                        rowtemp.push(freetextval + val[8]); //Free Format - Week number
-                        rowtemp.push(val[4]); //Amount
-                        rowtemp.push("BUXTON LIME LTD"); //Orig Name
-                        rowtemp.push("Buxton Lime LtdSal"); // Pay Ref
-                        rowtemp.push(val[0] + " " +val[1]); //Dest A/C Name
-                        rowtemp.push(convertDate(val[7])); // Proc Date
+                        rowtemp.push(padStringEnd(val[3],8));   //Dest A/C No.
+                        rowtemp.push(padStringEnd("0",1));  //Dest A/C Type
+                        rowtemp.push(padStringEnd("99",2)); //  BACS Code
+                        rowtemp.push(padNumberwithZero("202405",6)); // Debit Sort Code
+                        rowtemp.push(padNumberwithZero("173479",8)); // Debit A/C No.
+                        rowtemp.push(padStringEnd(freetextval + padNumberwithZero(val[8],2),4)); //Free Format - Week number
+                        rowtemp.push(padNumberwithZero(removeSpecialCharacters(val[4]),11)); //Amount
+                        rowtemp.push(padStringEnd("BUXTON LIMELIMITED",18)); //Orig Name
+                        rowtemp.push(padStringEnd("Buxton Lime LtdSal",18)); // Pay Ref
+                        rowtemp.push(padStringEnd(val[0] + " " +val[1],18)); //Dest A/C Name
+                        rowtemp.push(padStringEnd(convertDate(val[7]),6)); // Proc Date
                         if (i>0){
                            BACOutput.push(rowtemp); 
                         }
@@ -131,20 +150,13 @@ csvForm.addEventListener("submit", (e: Event) =>  {
             });
 
             //format to save file
-
-
-
-            let rowWithPropertyNames = headerOutput.join(',') + '\n';
-            //let propertyNames = headerOutput.keys();
-            let csvContent = rowWithPropertyNames;
-        
-            let rows: string[] = [];
+           let rows: string[] = [];
+           let csvContent:string;            
             i =0;
 
             BACOutput.forEach((item) => {
                 if (i!=0){
-                rows.push(item.join(','));
-                //console.log(item);
+                rows.push(item.join(''));
                 }
                 i++
             });
@@ -152,9 +164,9 @@ csvForm.addEventListener("submit", (e: Event) =>  {
 
             // trigger a download of the file
             var hiddenElement = document.createElement('a');
-            hiddenElement.href = 'data:text/csv;charset=utf-8,' + encodeURI(csvContent);
+            hiddenElement.href = 'data:text/plain;charset=utf-8,' + encodeURI(csvContent);
             hiddenElement.target = '_blank';
-            hiddenElement.download = "BuxtonLime"+ formattedDate + '.csv';
+            hiddenElement.download = "BuxtonLime"+ formattedDate + '.txt';
             hiddenElement.click();
 
             // create form 
