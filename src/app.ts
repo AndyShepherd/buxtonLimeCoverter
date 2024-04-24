@@ -102,6 +102,8 @@ csvForm.addEventListener("submit", (e: Event) =>  {
                 i++;
             });
 
+         
+
             const headerOutput: string[] = [];
             // setup headers For Grid
             headerOutput.push("Dest Sort Code");
@@ -151,17 +153,18 @@ csvForm.addEventListener("submit", (e: Event) =>  {
 
             //format to save file
            let rows: string[] = [];
-           let csvContent:string;            
+           let csvContent:string = "";
             i =0;
-
             BACOutput.forEach((item) => {
+
                 if (i!=0){
                 rows.push(item.join(''));
                 }
                 i++
             });
+           
             csvContent += rows.join('\n');
-
+            
             // trigger a download of the file
             var hiddenElement = document.createElement('a');
             hiddenElement.href = 'data:text/plain;charset=utf-8,' + encodeURI(csvContent);
